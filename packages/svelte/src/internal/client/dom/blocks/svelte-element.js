@@ -13,7 +13,7 @@ import { set_should_intro } from '../../render.js';
 import { active_effect } from '../../runtime.js';
 import { component_context, dev_stack } from '../../context.js';
 import { DEV } from 'esm-env';
-import { EFFECT_TRANSPARENT, ELEMENT_NODE } from '#client/constants';
+import { BRANCH_EFFECT, EFFECT_TRANSPARENT, ELEMENT_NODE } from '#client/constants';
 import { assign_nodes } from '../template.js';
 import { is_raw_text_element } from '../../../../utils.js';
 import { BranchManager } from './branches.js';
@@ -52,6 +52,12 @@ export function element(node, get_tag, is_svg, render_fn, get_namespace, locatio
 	 * `animate:` directive to bind itself to the correct block
 	 */
 	var parent_effect = /** @type {Effect} */ (active_effect);
+
+	// `animate:` belongs to the keyed each item, which is never a transparent branch. Skip
+	// the transparent branch that `$.async` wraps around content hydrated after an `await`
+	while ((parent_effect.f & BRANCH_EFFECT) !== 0 && (parent_effect.f & EFFECT_TRANSPARENT) !== 0) {
+		parent_effect = /** @type {Effect} */ (parent_effect.parent);
+	}
 
 	var branches = new BranchManager(anchor, false);
 

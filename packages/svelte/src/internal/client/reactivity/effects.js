@@ -434,9 +434,10 @@ export function managed(fn, flags = 0) {
 
 /**
  * @param {(() => void)} fn
+ * @param {number} flags
  */
-export function branch(fn) {
-	return create_effect(BRANCH_EFFECT | EFFECT_PRESERVED, fn);
+export function branch(fn, flags = 0) {
+	return create_effect(BRANCH_EFFECT | EFFECT_PRESERVED | flags, fn);
 }
 
 /**
